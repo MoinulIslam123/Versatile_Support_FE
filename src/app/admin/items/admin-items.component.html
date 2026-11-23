@@ -1,0 +1,202 @@
+<div class="flex flex-wrap items-end justify-between gap-4">
+  <div>
+    <h1 class="font-display text-3xl font-bold text-brand-navy">
+      {{ cfg.label }}
+    </h1>
+    @if (cfg.help) {
+      <p class="mt-1 max-w-2xl text-slate-500">{{ cfg.help }}</p>
+    }
+  </div>
+  <button
+    type="button"
+    (click)="add()"
+    class="btn-primary !px-5 !py-2.5 text-sm"
+  >
+    <app-icon name="plus" class="h-4 w-4" />Add new
+  </button>
+</div>
+
+@if (error) {
+  <p class="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-600">{{ error }}</p>
+}
+
+<!-- Add / edit form -->
+@if (form) {
+  <form
+    (ngSubmit)="save()"
+    class="mt-6 space-y-4 rounded-3xl bg-white p-6 shadow-md ring-2 ring-brand-blue/30"
+  >
+    <h2 class="font-display text-xl font-bold text-brand-navy">
+      {{ form.id ? "Edit" : "New" }}
+    </h2>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div class="sm:col-span-2">
+        <label class="mb-1.5 block text-sm font-semibold text-brand-navy">{{
+          cfg.titleLabel
+        }}</label>
+        <input class="input" name="title" [(ngModel)]="form.title" required />
+      </div>
+
+      @if (cfg.textLabel) {
+        <div class="sm:col-span-2">
+          <label class="mb-1.5 block text-sm font-semibold text-brand-navy">{{
+            cfg.textLabel
+          }}</label>
+          <textarea
+            class="input"
+            rows="3"
+            name="text"
+            [(ngModel)]="form.text"
+          ></textarea>
+        </div>
+      }
+
+      @if (cfg.hasIcon) {
+        <div>
+          <label class="mb-1.5 block text-sm font-semibold text-brand-navy"
+            >Icon</label
+          >
+          <div class="flex items-center gap-3">
+            <select class="input" name="icon" [(ngModel)]="form.icon">
+              @for (i of iconNames; track i) {
+                <option [value]="i">{{ i }}</option>
+              }
+            </select>
+            <span
+              class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-brand-navy text-white"
+              ><app-icon [name]="form.icon ?? ''" class="h-6 w-6"
+            /></span>
+          </div>
+        </div>
+      }
+
+      @if (cfg.hasImage) {
+        <div>
+          <label class="mb-1.5 block text-sm font-semibold text-brand-navy"
+            >Photo path or link (optional)</label
+          >
+          <input
+            class="input"
+            name="imageUrl"
+            [(ngModel)]="form.imageUrl"
+            placeholder="gallery/photo-1.jpg"
+          />
+        </div>
+      }
+
+      <div>
+        <label class="mb-1.5 block text-sm font-semibold text-brand-navy"
+          >Order</label
+        >
+        <input
+          class="input"
+          type="number"
+          name="order"
+          [(ngModel)]="form.sortOrder"
+        />
+      </div>
+      <label
+        class="flex items-center gap-2 self-end pb-3 text-sm font-medium text-slate-600"
+        ><input
+          type="checkbox"
+          name="active"
+          [(ngModel)]="form.isActive"
+          class="h-4 w-4 accent-[#e8542d]"
+        />Visible on website</label
+      >
+    </div>
+    <div class="flex gap-2">
+      <button
+        type="submit"
+        class="btn-primary !px-6 !py-2.5 text-sm"
+        [disabled]="!form.title"
+      >
+        Save
+      </button>
+      <button
+        type="button"
+        (click)="form = null"
+        class="rounded-full border border-slate-300 px-6 py-2.5 text-sm font-semibold text-slate-600"
+      >
+        Cancel
+      </button>
+    </div>
+  </form>
+}
+
+<!-- List -->
+<section class="mt-6 overflow-x-auto rounded-3xl bg-white p-5 shadow-md">
+  <table class="w-full text-left text-sm">
+    <thead class="text-xs uppercase tracking-wider text-slate-400">
+      <tr>
+        <th class="py-2 pr-3">#</th>
+        <th class="py-2 pr-3">{{ cfg.titleLabel }}</th>
+        <th class="py-2 pr-3">Status</th>
+        <th class="py-2 text-right">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (i of items; track i.id) {
+        <tr class="border-t border-slate-100">
+          <td class="py-3 pr-3 text-slate-400">{{ i.sortOrder }}</td>
+          <td class="py-3 pr-3" [class.opacity-50]="!i.isActive">
+            <div class="flex items-center gap-3">
+              @if (cfg.hasIcon && i.icon) {
+                <span
+                  class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-brand-blue to-brand-navy text-white"
+                  ><app-icon [name]="i.icon" class="h-4 w-4"
+                /></span>
+              }
+              <span class="min-w-0">
+                <span class="block font-semibold text-brand-navy">{{
+                  i.title
+                }}</span>
+                @if (i.text) {
+                  <span class="line-clamp-1 text-xs text-slate-400">{{
+                    i.text
+                  }}</span>
+                }
+              </span>
+            </div>
+          </td>
+          <td class="py-3 pr-3">
+            <button
+              type="button"
+              (click)="toggle(i)"
+              class="rounded-full px-3 py-1 text-xs font-semibold"
+              [class]="
+                i.isActive
+                  ? 'bg-green-100 text-green-700'
+                  : 'bg-slate-100 text-slate-500'
+              "
+            >
+              {{ i.isActive ? "Visible" : "Hidden" }}
+            </button>
+          </td>
+          <td class="py-3 text-right whitespace-nowrap">
+            <button
+              type="button"
+              (click)="edit(i)"
+              class="rounded-lg px-2 py-1 text-xs font-semibold text-brand-blue hover:bg-brand-blue/10"
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              (click)="remove(i)"
+              class="rounded-lg px-2 py-1 text-xs font-semibold text-red-500 hover:bg-red-50"
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="4" class="py-8 text-center text-slate-400">
+            Nothing here yet — click “Add new”.
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</section>

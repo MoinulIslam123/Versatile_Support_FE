@@ -1,0 +1,122 @@
+<div class="flex flex-wrap items-end justify-between gap-4">
+  <div>
+    <h1 class="font-display text-3xl font-bold text-brand-navy">Gallery</h1>
+    <p class="mt-1 max-w-2xl text-slate-500">
+      Upload photos of your products and projects (JPG, PNG, WEBP or GIF, up to
+      5 MB each). They appear on the Gallery page in this order.
+    </p>
+  </div>
+  <label class="btn-primary cursor-pointer !px-5 !py-2.5 text-sm">
+    <app-icon name="plus" class="h-4 w-4" />Upload photos
+    <input
+      type="file"
+      accept="image/*"
+      multiple
+      class="hidden"
+      (change)="onFiles($event)"
+    />
+  </label>
+</div>
+
+@if (uploading) {
+  <p class="mt-4 rounded-xl bg-blue-50 p-3 text-sm text-brand-blue">
+    Uploading… please wait.
+  </p>
+}
+@if (message) {
+  <p class="mt-4 rounded-xl bg-green-50 p-3 text-sm text-green-700">
+    {{ message }}
+  </p>
+}
+@if (error) {
+  <p class="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-600">{{ error }}</p>
+}
+
+<div class="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+  @for (i of items; track i.id) {
+    <div
+      class="overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-slate-200 transition"
+      [class.opacity-60]="!i.isActive"
+    >
+      <div class="relative aspect-[4/3] bg-slate-100">
+        @if (i.imageUrl) {
+          <img
+            [src]="fileUrl(i.imageUrl)"
+            [alt]="i.title"
+            loading="lazy"
+            class="h-full w-full object-cover"
+          />
+        } @else {
+          <div
+            class="grid h-full w-full place-items-center bg-gradient-to-br from-brand-blue to-brand-navy text-white"
+          >
+            <app-icon
+              [name]="i.icon || 'sparkles'"
+              class="h-12 w-12 text-white/80"
+            />
+          </div>
+        }
+        <label
+          class="absolute bottom-2 right-2 cursor-pointer rounded-full bg-white/95 px-3 py-1.5 text-xs font-semibold text-brand-navy shadow transition hover:bg-brand-orange hover:text-white"
+        >
+          {{ i.imageUrl ? "Replace photo" : "Add photo" }}
+          <input
+            type="file"
+            accept="image/*"
+            class="hidden"
+            (change)="replace(i, $event)"
+          />
+        </label>
+        @if (!i.isActive) {
+          <span
+            class="absolute left-2 top-2 rounded-full bg-slate-800/80 px-3 py-1 text-xs font-semibold text-white"
+            >Hidden</span
+          >
+        }
+      </div>
+
+      <div class="space-y-3 p-4">
+        <input
+          class="input !py-2 text-sm"
+          [(ngModel)]="i.title"
+          (change)="save(i)"
+          placeholder="Caption"
+        />
+        <div class="flex items-center gap-2">
+          <input
+            class="input !w-20 !py-2 text-sm"
+            type="number"
+            [(ngModel)]="i.sortOrder"
+            (change)="save(i)"
+            title="Order"
+          />
+          <button
+            type="button"
+            (click)="toggle(i)"
+            class="rounded-full px-3 py-1.5 text-xs font-semibold"
+            [class]="
+              i.isActive
+                ? 'bg-green-100 text-green-700'
+                : 'bg-slate-100 text-slate-500'
+            "
+          >
+            {{ i.isActive ? "Visible" : "Hidden" }}
+          </button>
+          <button
+            type="button"
+            (click)="remove(i)"
+            class="ml-auto rounded-lg px-2 py-1 text-xs font-semibold text-red-500 hover:bg-red-50"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  } @empty {
+    <p
+      class="col-span-full rounded-2xl bg-white py-14 text-center text-slate-400 shadow-md"
+    >
+      No photos yet — click “Upload photos”.
+    </p>
+  }
+</div>

@@ -1,0 +1,21 @@
+<h1 class="font-display text-3xl font-bold text-brand-navy">Site Info</h1>
+<p class="mt-1 text-slate-500">Company name, phone numbers and footer text. Emails and addresses have their own pages: <a routerLink="/admin/emails" class="font-semibold text-brand-blue">Emails</a> · <a routerLink="/admin/addresses" class="font-semibold text-brand-blue">Addresses</a>.</p>
+
+@if (error) { <p class="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-600">{{ error }}</p> }
+
+<form (ngSubmit)="save()" class="mt-6 max-w-3xl space-y-5 rounded-3xl bg-white p-6 shadow-md sm:p-8">
+  @for (f of fields; track f.key) {
+    <div>
+      <label class="mb-1.5 block text-sm font-semibold text-brand-navy">{{ f.label }}</label>
+      @if (f.area) {
+        <textarea class="input" rows="4" [name]="f.key" [(ngModel)]="values[f.key]"></textarea>
+      } @else {
+        <input class="input" [name]="f.key" [(ngModel)]="values[f.key]" />
+      }
+    </div>
+  }
+  <div class="flex items-center gap-3">
+    <button type="submit" class="btn-primary !px-6 !py-2.5 text-sm">Save changes</button>
+    <span class="text-sm text-green-600">{{ message }}</span>
+  </div>
+</form>
